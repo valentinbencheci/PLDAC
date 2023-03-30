@@ -9,3 +9,5 @@ Les étapes de ce projet seront les suivantes :
 - construction de baselines à l’aide d’algorithme non-deep learning (`sklearn`)
 - prise en main d’une plateforme deep learning (`pytorch`)
 - réflexion sur les contraintes spécifiques
+- pour les "chunks" il faudra faire une fonction qui prend la moyenne des predictions
+- on peut faire des autre modeles: Recurrent Neural Networks (RNNs); 1D Convolutional Neural Networks (1D CNNs); Time-Distributed CNN-LSTM; Transformers; WaveNet.
