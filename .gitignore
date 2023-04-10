@@ -1,6 +1,8 @@
 # Python / Jupyter
 __pycache__
 .ipynb_checkpoints
+.conda
+notebooks/examples
 
 # Unwanted files
 ~*
