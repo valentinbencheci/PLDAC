@@ -1,4 +1,5 @@
 from data import load_data, load_merged_data
+from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -14,21 +15,21 @@ class CRNN(nn.Module):
         # Convolutional layers
         self.conv_layers = nn.Sequential(
             # First
-            nn.Conv2d(1, 96, kernel_size=5),
+            nn.Conv2d(1, 96, kernel_size=5, padding=2),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=5),
+            nn.MaxPool2d(kernel_size=(5, 1)),
             # Second
-            nn.Conv2d(96, 96, kernel_size=5),
+            nn.Conv2d(96, 96, kernel_size=5, padding=2),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2),
+            nn.MaxPool2d(kernel_size=(2, 1)),
             # Third
-            nn.Conv2d(96, 96, kernel_size=5),
+            nn.Conv2d(96, 96, kernel_size=5, padding=2),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2),
+            nn.MaxPool2d(kernel_size=(2, 1)),
             # Fourth
-            nn.Conv2d(96, 96, kernel_size=5),
+            nn.Conv2d(96, 96, kernel_size=5, padding=2),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2),
+            nn.MaxPool2d(kernel_size=(2, 1)),
         )
 
         # Gated Recurrent Unit (GRU) layers
@@ -45,8 +46,8 @@ class CRNN(nn.Module):
         )
 
     def forward(self, x):
-        # Convolutional layers      
-        print(x.shape)
+        # Convolutional layers 
+        x = x.unsqueeze(1)     
         x = self.conv_layers(x)
 
         # Rearrange dimensions for GRU input
@@ -93,9 +94,12 @@ def train():
         model.train()
 
         # iterate over batches in the training set
-        for i, (inputs, labels) in enumerate(train_loader):
+        for i, (inputs, labels) in tqdm(enumerate(train_loader)):
             inputs = inputs.to(device)
             labels = labels.to(device)
+
+            # reshape labels
+            labels = labels.unsqueeze(1)
 
             # zero the parameter gradients
             optimizer.zero_grad()
@@ -104,7 +108,7 @@ def train():
             outputs = model(inputs)
 
             # calculate loss and backpropagate
-            loss = criterion(outputs, labels)
+            loss = criterion(outputs.float(), labels.float())
             loss.backward()
             optimizer.step()
 
@@ -118,11 +122,14 @@ def train():
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 
+                # reshape labels
+                labels = labels.unsqueeze(1)
+
                 # forward pass
                 outputs = model(inputs)
 
                 # calculate loss
-                loss = criterion(outputs, labels)
+                loss = criterion(outputs.float(), labels.float())
                 val_loss += loss.item() * inputs.size(0)
 
                 # save predictions and labels
@@ -156,3 +163,29 @@ def train():
                     break
 
 train()
+
+def debug_shapes(model, input_shape):
+    # Define hook function to print shape of input and output tensors
+    def print_shape(module, input, output):
+        print(f"Module: {module.__class__.__name__}")
+        print(f"Shape of input tensor: {input[0].shape}")
+        print(f"Shape of output tensor: {output.shape}")
+        print("="*50)
+
+    # Add hook to each module in the model
+    for module in model.modules():
+        module.register_forward_hook(print_shape)
+
+    # Pass input tensor through the model
+    input_tensor = torch.randn(input_shape)
+    output_tensor = model(input_tensor)
+
+    # Remove hooks from model
+    for module in model.modules():
+        module._forward_hooks.clear()
+
+debug = False
+if __name__ == "main" and debug == True:
+    model = CRNN()
+    train_dataset, train_loader, val_dataset, val_loader = load_merged_data(32)
+    debug_shapes(model, (32, 40, 500))

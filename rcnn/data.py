@@ -26,8 +26,9 @@ class AudioDataset(Dataset):
         audio_path = f"{self.audio_dir}/{filename}.wav"
         features = self.transform(audio_path)
         # Reshape features tensor to have shape (N, Cin, H, W)
-        features = features[np.newaxis, ...]  # add N dimension
-        features = np.repeat(features, self.input_channels, axis=0)  # repeat features along Cin dimension
+        # Note: can be done directly in forward with tensors through x.unsqueeze(1)
+        # features = features[np.newaxis, ...]  # add N dimension
+        # features = np.repeat(features, self.input_channels, axis=0)  # repeat features along Cin dimension
         # Convert label to index
         label_idx = self.label_to_idx[label]
         return features, label_idx
