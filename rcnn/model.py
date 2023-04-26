@@ -16,38 +16,42 @@ class CRNN(nn.Module):
         self.conv_layers = nn.Sequential(
             # First
             nn.Conv2d(1, 96, kernel_size=5, padding=2),
+            nn.BatchNorm2d(96),
             nn.ReLU(),
+            nn.Dropout(p=0.25),
             nn.MaxPool2d(kernel_size=(5, 1)),
             # Second
             nn.Conv2d(96, 96, kernel_size=5, padding=2),
+            nn.BatchNorm2d(96),
             nn.ReLU(),
+            nn.Dropout(p=0.25),
             nn.MaxPool2d(kernel_size=(2, 1)),
             # Third
             nn.Conv2d(96, 96, kernel_size=5, padding=2),
+            nn.BatchNorm2d(96),
             nn.ReLU(),
+            nn.Dropout(p=0.25),
             nn.MaxPool2d(kernel_size=(2, 1)),
             # Fourth
             nn.Conv2d(96, 96, kernel_size=5, padding=2),
+            nn.BatchNorm2d(96),
             nn.ReLU(),
+            nn.Dropout(p=0.25),
             nn.MaxPool2d(kernel_size=(2, 1)),
         )
 
         # Gated Recurrent Unit (GRU) layers
-        self.gru_layers = nn.GRU(
-            96, 96, num_layers=2, batch_first=True, bidirectional=True
-        )
+        self.gru_layers = nn.GRU(96, 96, num_layers=2, batch_first=True)
 
         # Temporal max-pooling layer
         self.temporal_max_pooling = nn.AdaptiveMaxPool1d(1)
 
         # Feedforward layer
-        self.feedforward_layer = nn.Sequential(
-            nn.Dropout(p=0.25), nn.BatchNorm1d(192), nn.Linear(192, 1), nn.Sigmoid()
-        )
+        self.feedforward_layer = nn.Sequential(nn.Linear(96, 1), nn.Sigmoid())
 
     def forward(self, x):
-        # Convolutional layers 
-        x = x.unsqueeze(1)     
+        # Convolutional layers
+        x = x.unsqueeze(1)
         x = self.conv_layers(x)
 
         # Rearrange dimensions for GRU input
@@ -68,8 +72,8 @@ class CRNN(nn.Module):
         return x
 
 
-def train():
-    train_dataset, train_loader, val_dataset, val_loader = load_merged_data(32)
+def train(batch_size):
+    train_dataset, train_loader, val_dataset, val_loader = load_merged_data(batch_size)
 
     # Create an instance of the model
     model = CRNN()
@@ -90,11 +94,13 @@ def train():
 
     # training loop
     for epoch in range(num_epochs):
+        print(f"Epoch [{epoch + 1}/{num_epochs}]")
+        print("Training...")
         # set model to train mode
         model.train()
 
         # iterate over batches in the training set
-        for i, (inputs, labels) in tqdm(enumerate(train_loader)):
+        for inputs, labels in tqdm(train_loader):
             inputs = inputs.to(device)
             labels = labels.to(device)
 
@@ -111,14 +117,16 @@ def train():
             loss = criterion(outputs.float(), labels.float())
             loss.backward()
             optimizer.step()
+        print("Training done!")
 
         # evaluate model on validation set
+        print("Evaluating...")
         with torch.no_grad():
             model.eval()
             val_loss = 0.0
             val_preds = []
             val_labels = []
-            for inputs, labels in val_loader:
+            for inputs, labels in tqdm(val_loader):
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 
@@ -141,11 +149,8 @@ def train():
             val_auc = roc_auc_score(val_labels, val_preds)
 
             # print validation metrics
-            print(
-                "Epoch [{}/{}], Val Loss: {:.4f}, Val AUC: {:.4f}".format(
-                    epoch + 1, num_epochs, val_loss, val_auc
-                )
-            )
+            print(f"=> Val Loss: {val_loss:.4f}, Val AUC: {val_auc:.4f}")
+            print("Evaluating done!")
 
             # check for early stopping
             if val_auc > best_auc:
@@ -156,21 +161,23 @@ def train():
                 counter += 1
                 if counter >= patience:
                     print(
-                        "Early stopping after {} epochs without improvement.".format(
-                            patience
-                        )
+                        f"Early stopping after {patience} epochs without improvement."
                     )
                     break
 
-train()
+
+if __name__ == "__main__":
+    train(batch_size=16)
+
 
 def debug_shapes(model, input_shape):
     # Define hook function to print shape of input and output tensors
     def print_shape(module, input, output):
         print(f"Module: {module.__class__.__name__}")
         print(f"Shape of input tensor: {input[0].shape}")
-        print(f"Shape of output tensor: {output.shape}")
-        print("="*50)
+        for i, o in enumerate(output):
+            print(f"Shape of output tensor {i}: {o.shape}")
+        print("=" * 50)
 
     # Add hook to each module in the model
     for module in model.modules():
@@ -184,8 +191,8 @@ def debug_shapes(model, input_shape):
     for module in model.modules():
         module._forward_hooks.clear()
 
+
 debug = False
-if __name__ == "main" and debug == True:
+if debug == True:
     model = CRNN()
-    train_dataset, train_loader, val_dataset, val_loader = load_merged_data(32)
     debug_shapes(model, (32, 40, 500))

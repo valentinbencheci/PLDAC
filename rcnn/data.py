@@ -54,7 +54,7 @@ def load_data(batch_size):
 
     # Create data loaders
     train_loader = DataLoader(dataset, batch_size=batch_size, sampler=sampler)
-    val_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+    val_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     return train_dataset, train_loader, val_dataset, val_loader
 
@@ -90,7 +90,7 @@ def load_merged_data(batch_size):
 
     # Create data loaders
     train_loader = DataLoader(dataset, batch_size=batch_size, sampler=sampler)
-    val_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+    val_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     return train_dataset, train_loader, val_dataset, val_loader
 
