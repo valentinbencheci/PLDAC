@@ -1,3 +1,4 @@
+from spectrogram import extract_log_mel_energy_features
 import numpy as np
 import pandas as pd
 import librosa
@@ -9,7 +10,6 @@ from torch.utils.data import (
     ConcatDataset,
     random_split,
 )
-from spectrogram import extract_log_mel_energy_features
 
 
 class AudioDataset(Dataset):
@@ -17,7 +17,7 @@ class AudioDataset(Dataset):
         self,
         csv_file,
         audio_dir,
-        input_channels=1,
+        # input_channels=1,
         transform=extract_log_mel_energy_features,
         data_slice=None,
     ):
@@ -29,7 +29,7 @@ class AudioDataset(Dataset):
         self.idx_to_label = {i: label for i, label in enumerate(self.labels)}
         self.audio_dir = audio_dir
         self.transform = transform
-        self.input_channels = input_channels
+        # self.input_channels = input_channels
 
     def __len__(self):
         return len(self.data)
