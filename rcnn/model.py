@@ -1,11 +1,13 @@
 from data import load_data, load_merged_data
+import time
 from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import torch.utils.data as data
-from sklearn.metrics import roc_auc_score
+from torch.optim.lr_scheduler import ExponentialLR
+from sklearn.metrics import roc_auc_score, f1_score
 
 
 class CRNN(nn.Module):
@@ -72,88 +74,78 @@ class CRNN(nn.Module):
         return x
 
 
-def train(batch_size):
-    train_dataset, train_loader, val_dataset, val_loader = load_data(batch_size)
-
-    # Create an instance of the model
-    model = CRNN()
+def train(
+    model, criterion, optimizer, scheduler, batch_size, split_size, num_epochs, patience
+):
+    train_loader, val_loader = load_merged_data(batch_size, split_size)
 
     # Move the model to the GPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
-    # define optimizer and loss function
-    optimizer = optim.Adam(model.parameters())
-    criterion = nn.BCELoss()
-
-    # define number of epochs and early stopping
-    num_epochs = 100
-    patience = 50
     best_auc = 0.0
     counter = 0
 
     # training loop
+    since = time.time()
     for epoch in range(num_epochs):
         print(f"Epoch [{epoch + 1}/{num_epochs}]")
-        print("Training...")
-        # set model to train mode
-        model.train()
+        print("-" * 50)
 
-        # iterate over batches in the training set
-        for inputs, labels in tqdm(train_loader):
-            inputs = inputs.to(device)
-            labels = labels.to(device)
+        for phase in ["train", "eval"]:
+            if phase == "train":
+                model.train()  # Set model to training mode
+                dataset = train_loader
+            else:
+                model.eval()  # Set model to evaluate mode
+                dataset = val_loader
 
-            # reshape labels
-            labels = labels.unsqueeze(1)
-
-            # zero the parameter gradients
-            optimizer.zero_grad()
-
-            # forward pass
-            outputs = model(inputs)
-
-            # calculate loss and backpropagate
-            loss = criterion(outputs.float(), labels.float())
-            loss.backward()
-            optimizer.step()
-        print("Training done!")
-
-        # evaluate model on validation set
-        print("Evaluating...")
-        with torch.no_grad():
-            model.eval()
             val_loss = 0.0
             val_preds = []
             val_labels = []
-            for inputs, labels in tqdm(val_loader):
+
+            # iterate over batches
+            for inputs, labels in tqdm(dataset):
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 
                 # reshape labels
                 labels = labels.unsqueeze(1)
 
+                # zero the parameter gradients
+                optimizer.zero_grad()
+
                 # forward pass
-                outputs = model(inputs)
+                # track history if only in train
+                with torch.set_grad_enabled(phase == "train"):
+                    outputs = model(inputs)
+                    preds = outputs.round()
+                    loss = criterion(outputs, labels.float())
 
-                # calculate loss
-                loss = criterion(outputs.float(), labels.float())
+                    # backward + optimize only if in training phase
+                    if phase == "train":
+                        loss.backward()
+                        optimizer.step()
+
                 val_loss += loss.item() * inputs.size(0)
+                val_preds += preds.detach().cpu().numpy().tolist()
+                val_labels += labels.detach().cpu().numpy().tolist()
 
-                # save predictions and labels
-                val_preds += outputs.cpu().numpy().tolist()
-                val_labels += labels.cpu().numpy().tolist()
-            print("Evaluating done!")
+            # learning rate scheduler
+            if phase == "train":
+                scheduler.step()
 
-            # calculate validation metrics
-            val_loss /= len(val_dataset)
+            # statistics
+            val_loss /= len(train_loader)
             val_auc = roc_auc_score(val_labels, val_preds)
+            val_f1 = f1_score(val_labels, val_preds)
 
-            # print validation metrics
-            print(f"=> Val Loss: {val_loss:.4f}, Val AUC: {val_auc:.4f}")
+            print(
+                f"[{phase}] Loss: {val_loss:.4f}, AUC: {val_auc:.4f}, F1: {val_f1:.4f}"
+            )
 
             # check for early stopping
-            if val_auc > best_auc:
+            if phase == "eval" and val_auc > best_auc:
                 best_auc = val_auc
                 counter = 0
                 torch.save(model.state_dict(), "best_model.pt")
@@ -165,9 +157,38 @@ def train(batch_size):
                     )
                     break
 
+    time_elapsed = time.time() - since
+    print(f"Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s")
+    print(f"Best val AUC: {best_auc:4f}")
+
+    return model
+
 
 if __name__ == "__main__":
-    train(batch_size=32)
+    # Create an instance of the model
+    model = CRNN()
+
+    # define optimizer, learning scheduler and loss function
+    optimizer = optim.Adam(model.parameters())
+    scheduler = ExponentialLR(optimizer, gamma=0.9)
+    criterion = nn.BCELoss()
+
+    # define batch size, number of epochs and early stopping
+    batch_size = 32
+    split_size = 0.6
+    num_epochs = 100
+    patience = 50
+
+    train(
+        model,
+        criterion,
+        optimizer,
+        scheduler,
+        batch_size,
+        split_size,
+        num_epochs,
+        patience,
+    )
 
 
 def debug_shapes(model, input_shape):
@@ -177,7 +198,7 @@ def debug_shapes(model, input_shape):
         print(f"Shape of input tensor: {input[0].shape}")
         for i, o in enumerate(output):
             print(f"Shape of output tensor {i}: {o.shape}")
-        print("=" * 50)
+        print("-" * 50)
 
     # Add hook to each module in the model
     for module in model.modules():
