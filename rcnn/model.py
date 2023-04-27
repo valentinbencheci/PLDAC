@@ -73,7 +73,7 @@ class CRNN(nn.Module):
 
 
 def train(batch_size):
-    train_dataset, train_loader, val_dataset, val_loader = load_merged_data(batch_size)
+    train_dataset, train_loader, val_dataset, val_loader = load_data(batch_size)
 
     # Create an instance of the model
     model = CRNN()
@@ -143,6 +143,7 @@ def train(batch_size):
                 # save predictions and labels
                 val_preds += outputs.cpu().numpy().tolist()
                 val_labels += labels.cpu().numpy().tolist()
+            print("Evaluating done!")
 
             # calculate validation metrics
             val_loss /= len(val_dataset)
@@ -150,7 +151,6 @@ def train(batch_size):
 
             # print validation metrics
             print(f"=> Val Loss: {val_loss:.4f}, Val AUC: {val_auc:.4f}")
-            print("Evaluating done!")
 
             # check for early stopping
             if val_auc > best_auc:
@@ -167,7 +167,7 @@ def train(batch_size):
 
 
 if __name__ == "__main__":
-    train(batch_size=16)
+    train(batch_size=32)
 
 
 def debug_shapes(model, input_shape):
