@@ -144,18 +144,20 @@ def train(
                 f"[{phase}] Loss: {val_loss:.4f}, AUC: {val_auc:.4f}, F1: {val_f1:.4f}"
             )
 
-            # check for early stopping
-            if phase == "eval" and val_auc > best_auc:
-                best_auc = val_auc
-                counter = 0
-                torch.save(model.state_dict(), "best_model.pt")
-            else:
-                counter += 1
-                if counter >= patience:
-                    print(
-                        f"Early stopping after {patience} epochs without improvement."
-                    )
-                    break
+        print()
+        
+        # check for early stopping
+        if val_auc > best_auc:
+            best_auc = val_auc
+            counter = 0
+            torch.save(model.state_dict(), "best_model.pt")
+        else:
+            counter += 1
+            if counter >= patience:
+                print(
+                    f"Early stopping after {patience} epochs without improvement."
+                )
+                break
 
     time_elapsed = time.time() - since
     print(f"Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s")
@@ -174,7 +176,7 @@ if __name__ == "__main__":
     criterion = nn.BCELoss()
 
     # define batch size, number of epochs and early stopping
-    batch_size = 32
+    batch_size = 64
     split_size = 0.6
     num_epochs = 100
     patience = 50
