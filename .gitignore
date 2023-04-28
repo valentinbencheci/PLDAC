@@ -6,6 +6,7 @@ notebooks/examples
 
 # Unwanted files
 ~*
+archive
 
 # Large files
 data
