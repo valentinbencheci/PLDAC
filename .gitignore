@@ -3,6 +3,7 @@ __pycache__
 .ipynb_checkpoints
 .conda
 notebooks/examples
+archive 
 
 # Unwanted files
 ~*
