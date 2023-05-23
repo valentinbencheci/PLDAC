@@ -177,6 +177,16 @@
   file = {files/57/Lasseck - Audio-based Bird Species Identification with Deep .pdf}
 }
 
+@inproceedings{lasseckAcousticBirdDetection2018,
+  title = {Acoustic Bird Detection with Deep Convolutional Neural Networks},
+  booktitle = {Workshop on {{Detection}} and {{Classification}} of {{Acoustic Scenes}} and {{Events}}},
+  author = {Lasseck, Mario},
+  year = {2018},
+  urldate = {2023-05-23},
+  abstract = {This paper presents deep learning techniques for acoustic bird detection. Deep Convolutional Neural Networks (DCNNs), originally designed for image classification, are adapted and fine-tuned to detect the presence of birds in audio recordings. Various data augmentation techniques are applied to increase model performance and improve generalization to unknown recording conditions and new habitats. The proposed approach is evaluated in the Bird Audio Detection task which is part of the IEEE AASP Challenge on Detection and Classification of Acoustic Scenes and Events (DCASE) 2018. It provides the best system for the task and surpasses previous state-of-the-art achieving an area under the curve (AUC) above 95 \% on the public challenge leaderboard.},
+  file = {C\:\\Users\\Valinquish\\Zotero\\storage\\9FHX9LUL\\Lasseck - 2018 - Acoustic bird detection with deep convolutional ne.pdf}
+}
+
 @misc{liDomesticActivityClustering2022,
   title = {Domestic {{Activity Clustering}} from {{Audio}} via {{Depthwise Separable Convolutional Autoencoder Network}}},
   author = {Li, Yanxiong and Cao, Wenchang and Drossos, Konstantinos and Virtanen, Tuomas},
@@ -442,4 +452,25 @@ Comment: Slightly extended preprint of paper accepted for MLSP 2016},
   abstract = {Non-invasive bioacoustic monitoring is becoming increasingly popular for biodiversity conservation. Two automated methods for acoustic classification of bird species currently used are frame-based methods, a model that uses Hidden Markov Models (HMMs), and event-based methods, a model consisting of descriptive measurements or restricted to tonal or harmonic vocalizations. In this work, we propose a new method for automated field recording analysis with improved automated segmentation and robust bird species classification. We used a Gaussian Mixture Model (GMM)-based frame selection with an event-energy-based sifting procedure that selected representative acoustic events. We employed a Mel, band-pass filter bank on each event's spectrogram. The output in each subband was parameterized by an autoregressive (AR) model, which resulted in a feature consisting of all model coefficients. Finally, a support vector machine (SVM) algorithm was used for classification. The significance of the proposed method lies in the parameterized features depicting the speciesspecific spectral pattern. This experiment used a control audio dataset and real-world audio dataset comprised of field recordings of eleven bird species from the Xeno-canto Archive, consisting of 2762 bird acoustic events with 339 detected ``unknown'' events (corresponding to noise or unknown species vocalizations). Compared with other recent approaches, our proposed method provides comparable identification performance with respect to the eleven species of interest. Meanwhile, superior robustness in real-world scenarios is achieved, which is expressed as the considerable improvement from 0.632 to 0.928 for the F-score metric regarding the ``unknown'' events. The advantage makes the proposed method more suitable for automated field recording analysis.},
   langid = {english},
   file = {files/86/Zhao et al. - 2017 - Automated bird acoustic event detection and robust.pdf}
+}
+
+@article{attentionIsAllYouNeed,
+  author       = {Ashish Vaswani and
+                  Noam Shazeer and
+                  Niki Parmar and
+                  Jakob Uszkoreit and
+                  Llion Jones and
+                  Aidan N. Gomez and
+                  Lukasz Kaiser and
+                  Illia Polosukhin},
+  title        = {Attention Is All You Need},
+  journal      = {CoRR},
+  volume       = {abs/1706.03762},
+  year         = {2017},
+  url          = {http://arxiv.org/abs/1706.03762},
+  eprinttype    = {arXiv},
+  eprint       = {1706.03762},
+  timestamp    = {Sat, 23 Jan 2021 01:20:40 +0100},
+  biburl       = {https://dblp.org/rec/journals/corr/VaswaniSPUJGKP17.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
 }
