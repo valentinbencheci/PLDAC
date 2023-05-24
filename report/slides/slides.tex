@@ -63,7 +63,7 @@
     \begin{exampleblock}{Exemples}
         \begin{itemize}
             \item
-                  2022 \& 2023 : \textit{Few-shot Bioacoustic Event Detection}
+                  2022/2023 : \textit{Few-shot Bioacoustic Event Detection}
             \item
                   2021 : \textit{Automated Audio Captioning}
             \item
@@ -192,7 +192,7 @@
 
     \begin{block}{Avantages}
         \begin{itemize}
-            \item Visualiser intuitive du signal audio. % permettant de détecter les changements rapides ou lents dans l'amplitude du son.
+            \item Visualisation intuitive du signal audio. % permettant de détecter les changements rapides ou lents dans l'amplitude du son.
             \item Identifier les moments de silence ou de faible amplitude, ainsi que les pics et les moments d'intensité sonore élevée.
             \item Repérer des motifs ou des caractéristiques spécifiques dans le signal audio.
         \end{itemize}
@@ -534,24 +534,104 @@
 
 \end{frame}
 
-\begin{frame}{Approches}
+\begin{frame}{Quels pré-traitements explorer ?}
 
-    Nous avons choisi \textbf{3 approches} différentes pour le pré-traitement.
+    Nous avons choisi d'explorer \textbf{3 approches} différentes pour le pré-traitement.
 
-    \begin{block}{}
+    \begin{block}{Approches choisies}
         \begin{itemize}
-            \item Suppression du bruit + découpage en chunks.
-            \item Motifs répétitifs structurés qui peuvent varier dans le temps (rythme, tempo, puissance, trilles, glissandos, vibrato...).
-            \item Couvre une large gamme de fréquence mais le chant d'une espèce oiseau peut occuper une plage de fréquence spécifique/limitée (en fonction de l'espèce).\\
-                  $\rightarrow$ Notion de \textit{syllabe}.
+            \item Spectrogramme + Suppression du bruit + Découpage en chunks.
+            \item Spectrogramme + Supression du bruit.
+            \item Mel-Spectrogramme.
         \end{itemize}
     \end{block}
 
 \end{frame}
 
+\begin{frame}{Première approche}
+
+    \begin{block}{\citetitle{sprengelAudioBasedBird2016} \cite{sprengelAudioBasedBird2016}}
+        Utilise des opérations d'érosion et de dilation puis divise les audios en chunks de 2 secondes.
+        \begin{itemize}
+            \item Calcul du spectrogramme, estime le bruit à partir du calcul des médianes.
+            \item Extraction du masque binaire.
+            \item Modifie la forme des objets binaires par érosion et dilatation.
+            \item Division en chunks.
+        \end{itemize}
+    \end{block}
+
+\end{frame}
+
+\begin{frame}{Première approche}
+
+    \begin{figure}[ht]
+        \centering
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \caption*{Spectrogramme original}
+            \includegraphics[width=\textwidth]{../images/chunks.original_spectrogram.png}
+            \label{fig:chunks.original_spectrogram}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \caption*{Pixels sélectionnés après érosion}
+            \includegraphics[width=\textwidth]{../images/chunks.selected_pixels_after_erosion.png}
+            \label{fig:chunks.selected_pixels_after_erosion}
+        \end{subfigure}
+
+        \vspace{0.5cm}
+
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \caption*{Pixels sélectionnés}
+            \includegraphics[width=\textwidth]{../images/chunks.selected_pixels.png}
+            \label{fig:chunks.selected_columns}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.45\textwidth}
+            \centering
+            \caption*{Pixels sélectionnés après érosion et dilatation}
+            \includegraphics[width=\textwidth]{../images/chunks.selected_pixels_erosion_dilation.png}
+            \label{fig:chunks.selected_pixels_erosion_dilation}
+        \end{subfigure}
+    \end{figure}
+
+
+\end{frame}
+
+\begin{frame}{Deuxième approche}
+
+    \begin{block}{\citetitle{sprengelAudioBasedBird2016} \cite{sprengelAudioBasedBird2016}}
+        Dans cette approche, nous nous concentrerons sur la fonction \texttt{reduce\_noise} de la bibliothèque \texttt{noisereduce}, qui est une technique couramment utilisée pour supprimer le bruit des enregistrements audio.
+
+        \begin{itemize}
+            \item Préservation du signal. 
+            \item Robustesse.
+            \item Adaptabilité.
+        \end{itemize}
+    \end{block}
+
+% $\Rightarrow$ Préservation du signal. \\
+% $\Rightarrow$ Robustesse. \\
+% $\Rightarrow$ Adaptabilité.
+
+\end{frame}
+
+\begin{frame}{Deuxième approche}
+
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{../images/noisereduce.pdf}
+        \caption{Séparation du signal et de la partie bruitée d'un audio}
+        \label{fig:noisereduce}
+    \end{figure}
+
+\end{frame}
+
 \section{Modélisation} \subsection{}
 
-\begin{frame}{État de l'art}
+\begin{frame}{État de l'art - SVM}
 
     Ce qui se faisait... et se fait encore : modèles "classiques" de \textit{machine learning}.
 
@@ -572,7 +652,7 @@
 \end{frame}
 
 
-\begin{frame}{État de l'art}
+\begin{frame}{État de l'art - CNN}
 
     Ce qui marche le mieux : les réseaux de neurones.
 
@@ -592,7 +672,7 @@
 
 \end{frame}
 
-\begin{frame}{État de l'art}
+\begin{frame}{État de l'art - CRNN}
 
     Ce qui marche le mieux : les réseaux de neurones.
 
@@ -611,15 +691,102 @@
 
 \end{frame}
 
+\begin{frame}{Quelles modélisations explorer ?}
+
+    Nous avons choisi d'explorer \textbf{4 approches} différentes pour la modélisation.
+
+    \begin{block}{Approches de modélisation}
+        \begin{itemize}
+            \item CNN
+            \item RNN
+            \item SVM
+            \item CRNN
+        \end{itemize}
+    \end{block}
+
+
+
+\end{frame}
+
+\begin{frame}{Pourquoi un CNN ? }
+
+    \begin{block}{Atouts}
+        \begin{itemize}
+            \item Représentation spatio-temporelle.
+            \item Hiérarchie des caractéristiques.
+            \item Invariance aux translations.
+            \item Capacité à gérer des données de grande taille.
+            \item Apprentissage de représentations discriminantes.
+        \end{itemize}
+    \end{block}
+
+    \begin{figure}
+        \includegraphics[width=\textwidth,keepaspectratio]{../images/models/CNN.architecture.png}
+        \caption{Architecture CNN proposée pour la détection d'oiseaux}
+        \label{fig:CNN.architecture.birds}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}{Pourquoi un RNN ?}
+
+    \begin{block}{Atouts}
+        \begin{itemize}
+            \item Gestion des séquences temporelles.
+            \item Capture des dépendances à long terme.
+            \item Traitement de séquences de longueur variable.
+            \item Adaptabilité aux différentes fréquences d'échantillonnage.
+        \end{itemize}
+    \end{block}
+
+    \begin{figure}
+        \includegraphics[height=0.35\textheight,keepaspectratio]{../images/models/RNN.architecture.pdf}
+        \caption{Architecture RNN proposée pour la détection d'oiseaux}
+        \label{fig:RNN.architecture.birds}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}{Quelles expérimentations ?}
+    
+    \begin{block}{Pour le CNN...}
+        \begin{itemize}
+            \item Ajouter une couche dense supplémenatires ?
+            \item Jouer avec la couche de pooling (par exemple, average pooling au lieu de max pooling) ?
+        \end{itemize}
+    \end{block}
+
+    \begin{block}{Pour le RNN...}
+        \begin{itemize}
+            \item Ajouter une couche de sortie supplémentaire avec une fonction d'activation (ou non) ReLU ?
+            \item GRU ? LSTM ? Bi-LSTM ?
+        \end{itemize}
+    \end{block}
+
+\end{frame}
+
+\begin{frame}{Pourquoi ne pas essayer un SVM ?}
+
+    Après tout...
+
+    \begin{block}{Atouts}
+        \begin{itemize}
+            \item Gestions des espaces de grande dimension.
+            \item Contrôle du sur-ajustement.
+            \item Flexibilité du choix de la fonction de noyau.
+            \item Efficacité en présence de données déséquilibrées.
+        \end{itemize}
+    \end{block}
+
+\end{frame}
+
 \begin{frame}{CRNN}
 
     \begin{block}{\cite{cakirConvolutionalRecurrentNeural2017a}}
 
         \begin{itemize}
             \item Modèle développé dans le cadre de la détection de sons polyphoniques, c'est-à-dire la détection de plusieurs événements sonores se chevauchant.
-            \item Postulat que CNN et RNN sont deux méthodes complémentaires.\\
-                  $\Rightarrow$ CNN identifie des features spatiales.\\
-                  $\Rightarrow$ RNN gère des séquences et des dépendances temporelles.
+            \item Postulat que CNN et RNN sont deux méthodes complémentaires.
         \end{itemize}
 
     \end{block}
@@ -667,7 +834,7 @@
         \begin{subfigure}[b]{0.45\textwidth}
             \centering
             \includegraphics[width=\textwidth,height=0.8\textheight,keepaspectratio]{../images/models/CRNN.architecture.birds.pdf}
-            \caption{Architecture proposée pour la détection d'oiseaux}
+            \caption{Architecture CRNN proposée pour la détection d'oiseaux}
             \label{fig:CRNN.architecture.birds}
         \end{subfigure}
     \end{figure}
@@ -751,14 +918,68 @@
         \begin{itemize}
             \item AUC (\textit{mesure officielle du challenge})
             \item F1
-            \item Matrice de confusion
+            \item \textit{Matrice de confusion}
             \item \textit{Accuracy}
         \end{itemize}
     \end{exampleblock}
 
 \end{frame}
 
-\begin{frame}{Résultats - Performance}
+
+\begin{frame}{Première approche}
+
+    \begin{table}[h]
+        \centering
+        \resizebox{\linewidth}{!}{
+            \begin{tabular}{llcccccc}
+                \toprule
+                \multirow{2}{*}{Modèle} & \multirow{2}{*}{Pooling} & \multicolumn{2}{c}{Freefield1010} & \multicolumn{2}{c}{Warblrb10K} & \multicolumn{2}{c}{BirdVox}                                                 \\
+                                        &                          & AUC                               & F1                             & AUC                         & F1            & AUC           & F1            \\
+                \midrule
+                $\textrm{CNN}$          & -                        & .549                              & .585                           & \textbf{.718}               & .605          & \textbf{.736} & .710          \\
+                $\textrm{CNN}$          & Dense                    & .596                              & .533                           & .692                        & .575          & .730          & \textbf{.752} \\
+                $\textrm{CNN}$          & Average Pooling          & .591                              & .545                           & .586                        & \textbf{.704} & .674          & .736          \\
+                \midrule
+                $\textrm{RNN}$          & -                        & .525                              & .612                           & .654                        & .664          & .725          & .717          \\
+                $\textrm{RNN}$          & Dense                    & .564                              & \textbf{.645}                  & .625                        & .586          & .635          & .615          \\
+                $\textrm{RNN}$          & GRU                      & \textbf{.610}                     & \textbf{.645}                  & .694                        & .615          & .705          & .735          \\
+                \bottomrule
+            \end{tabular}
+        }
+        \caption{Performance des différents modèles sur Freefield, Warblr et BirdVox}
+        \label{tab:performance.approche1}
+    \end{table}
+
+\end{frame}
+
+\begin{frame}{Deuxième approche}
+
+    \begin{table}[h]
+        \centering
+        \resizebox{\linewidth}{!}{
+            \begin{tabular}{llcccccc}
+                \toprule
+                \multirow{2}{*}{Modèle} & \multirow{2}{*}{Kernel} & \multicolumn{2}{c}{Freefield1010} & \multicolumn{2}{c}{Warblrb10K} & \multicolumn{2}{c}{BirdVox}                                                 \\
+                                        &                         & AUC                               & F1                             & AUC                         & F1            & AUC           & F1            \\
+                \midrule
+                $\textrm{CNN}$          & -                       & \textbf{.599}                     & \textbf{.678}                  & .459                        & .395          & \textbf{.691} & \textbf{.760} \\
+                \midrule
+                $\textrm{RNN}$          & -                       & .584                              & .643                           & \textbf{.554}               & .495          & .604          & .575          \\
+                \midrule
+                SVM                     & Linéaire de degré 2     & .446                              & .467                           & .415                        & .399          & .552          & .526          \\
+                SVM                     & Linéaire de degré 3     & .511                              & .455                           & .435                        & .421          & .564          & .527          \\
+                SVM                     & Sigmoïde de degré 2     & .557                              & .524                           & .535                        & \textbf{.504} & .495          & .485          \\
+                SVM                     & Sigmoïde de degré 3     & .533                              & .543                           & .553                        & .446          & .554          & .590          \\
+                \bottomrule
+            \end{tabular}
+        }
+        \caption{Performance des différents modèles sur Freefield, Warblr et BirdVox}
+        \label{tab:performance.approche2}
+    \end{table}
+
+\end{frame}
+
+\begin{frame}{Troisième approche et CRNN}
 
     \begin{table}[h]
         \centering
@@ -785,8 +1006,8 @@
                 \bottomrule
             \end{tabular}
         }
-        \caption{Performance de différents modèles sur Freefield, Warblr et BirdVox}
-        \label{tab:performance}
+        \caption{Performance des différents modèles sur Freefield, Warblr et BirdVox}
+        \label{tab:performance.approche3}
     \end{table}
 
 \end{frame}
@@ -834,11 +1055,15 @@
 
 \begin{frame}{}
 
-    \begin{block}{}
+    \begin{block}{Qu'en tirer ?}
         \begin{itemize}
             \item Très exploratoire, chronophage, besoin de \textbf{faire des choix} dans ce que l'on veut faire.
+            \item Envie d'explorer plus les modèles attentionnels.
+            \item Envie de \textbf{comprendre la théorie} derrière le traitement du signal.
         \end{itemize}
     \end{block}
+
+    Merci !
 
 \end{frame}
 
