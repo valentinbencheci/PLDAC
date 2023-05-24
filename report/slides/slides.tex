@@ -16,7 +16,7 @@
 %  - nosectionpages: no pages between sections
 %  - flama: use flama font, requires xelatex/lualatex + the font to compile
 %  - compressminiframes: put the heading list bullets indications pages on 1 line
-\usetheme[]{sorbonne}
+\usetheme[nosectionpages]{sorbonne}
 \setbeamerfont{caption}{size=\scriptsize}
 
 % Title page
@@ -115,6 +115,8 @@
         \end{itemize}
     \end{block}
 
+    3 jeux de données pour y parvenir : Freefield, Warblr et BirdVox.
+    
 \end{frame}
 
 \begin{frame}{Données}
@@ -152,6 +154,21 @@
 \end{frame}
 
 \section{Traitement du signal} \subsection{}
+
+\begin{frame}{En résumé...}
+
+    Les sons d'oiseaux peuvent être distingués en chants ou cris, en se basant sur la complexité, la longueur et le contexte. Ici, on ne les dinstinguera pas.
+
+    \begin{block}{Les sons d'oiseaux}
+        \begin{itemize}
+            \item Plus ou moins long (chant vs cri).
+            \item Motifs répétitifs structurés qui peuvent varier dans le temps (rythme, tempo, puissance, trilles, glissandos, vibrato...).
+            \item Couvre une large gamme de fréquence mais le chant d'une espèce oiseau peut occuper une plage de fréquence spécifique/limitée (en fonction de l'espèce).\\
+                  $\rightarrow$ Notion de \textit{syllabe}.
+        \end{itemize}
+    \end{block}
+
+\end{frame}
 
 \begin{frame}{Principal défi}
 
@@ -519,21 +536,6 @@
 
 \end{frame}
 
-\begin{frame}{En résumé...}
-
-    Les sons d'oiseaux peuvent être distingués en chants ou cris, en se basant sur la complexité, la longueur et le contexte. Ici, on ne les dinstinguera pas.
-
-    \begin{block}{Les sons d'oiseaux}
-        \begin{itemize}
-            \item Plus ou moins long (chant vs cri).
-            \item Motifs répétitifs structurés qui peuvent varier dans le temps (rythme, tempo, puissance, trilles, glissandos, vibrato...).
-            \item Couvre une large gamme de fréquence mais le chant d'une espèce oiseau peut occuper une plage de fréquence spécifique/limitée (en fonction de l'espèce).\\
-                  $\rightarrow$ Notion de \textit{syllabe}.
-        \end{itemize}
-    \end{block}
-
-\end{frame}
-
 \begin{frame}{Quels pré-traitements explorer ?}
 
     Nous avons choisi d'explorer \textbf{3 approches} différentes pour le pré-traitement.
@@ -751,7 +753,7 @@
     
     \begin{block}{Pour le CNN...}
         \begin{itemize}
-            \item Ajouter une couche dense supplémenatires ?
+            \item Ajouter une couche dense supplémentaires ?
             \item Jouer avec la couche de pooling (par exemple, average pooling au lieu de max pooling) ?
         \end{itemize}
     \end{block}
@@ -919,7 +921,6 @@
             \item AUC (\textit{mesure officielle du challenge})
             \item F1
             \item \textit{Matrice de confusion}
-            \item \textit{Accuracy}
         \end{itemize}
     \end{exampleblock}
 
@@ -1058,7 +1059,7 @@
     \begin{block}{Qu'en tirer ?}
         \begin{itemize}
             \item Très exploratoire, chronophage, besoin de \textbf{faire des choix} dans ce que l'on veut faire.
-            \item Envie d'explorer plus les modèles attentionnels.
+            \item Envie d'approfondir les modèles attentionnels.
             \item Envie de \textbf{comprendre la théorie} derrière le traitement du signal.
         \end{itemize}
     \end{block}
